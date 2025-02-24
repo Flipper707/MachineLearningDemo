@@ -1,4 +1,6 @@
 # --- IMPORT SECTION ---
+import math
+
 import pandas as pd # for DataFrames
 import numpy as np # for numpy array operations
 import matplotlib.pyplot as plt # for visualization
@@ -20,14 +22,14 @@ data = pd.read_csv(path_to_data)
 # Visualizing the dataset
 print(f"\nHere are the first 5 rows of the dataset:\n{data.head()}")
 
-# Separete the data in fetaures adn target
-X = data["YearsExperience"]
-y = data["Salary"]
+# Separate the data in features and target
+X = data["YearsExperience"].values.reshape(-1, 1)
+y = data["Salary"].values.reshape(-1, 1)
 
 # Using a plot to visualize the data
 plt.title("Years of Experience vs Salary") # title of the plot
-plt.xlabel("Years of Experience") # title of x axis
-plt.ylabel("Salary") # title of y axis
+plt.xlabel("Years of Experience") # title of x-axis
+plt.ylabel("Salary") # title of y-axis
 plt.scatter(X, y, color="red") # actual plot
 sns.regplot(data = data, x = "YearsExperience", y = "Salary") #regression line
 plt.show() # renderize the plot to show it
@@ -40,4 +42,52 @@ print(f"\nThe total X size is: {X.shape[0]}")
 print(f"The X_train size is: {X_train.shape[0]} and is the {X_train.shape[0] / X.shape[0] * 100}% of the total X")
 print(f"The X_test size is: {X_test.shape[0]} and is the {X_test.shape[0] / X.shape[0] * 100}% of the total X")
 
+# See if y works
+print(f"\nThe total y size is: {y.shape[0]}")
+print(f"The y_train size is: {y_train.shape[0]} and is the {y_train.shape[0] / y.shape[0] * 100}% of the total y")
+print(f"The y_test size is: {y_test.shape[0]} and is the {y_test.shape[0] / y.shape[0] * 100}% of the total y")
+
+# Visualizing data before scaling
+print(f"\n-- BEFORE SCALING -- X_train:\n{X_train[:5]}")
+print(f"\n-- BEFORE SCALING -- y_train:\n{y_train[:5]}")
+print(f"\n-- BEFORE SCALING -- X_test:\n{X_test[:5]}")
+print(f"\n-- BEFORE SCALING -- y_test:\n{y_test[:5]}")
+
+# Features scaling
+scaler = StandardScaler()
+# We are going to scale ONLY the features (i.e. the X) and NOT the y
+X_train_scaled = scaler.fit_transform(X_train) # fitting to X_train and transforming them
+X_test_scaled = scaler.transform(X_test)  # transforming X_test. DO NOT FIT THEM because dobbiamo applicare la transformation basandoci solo sull'addestramento
+
+# Visualizing data after scaling
+print(f"\n-- AFTER SCALING -- X_train:\n{X_train_scaled[:5]}")
+print(f"\n-- AFTER SCALING -- y_train:\n{y_train[:5]}")
+print(f"\n-- AFTER SCALING -- X_test:\n{X_test_scaled[:5]}")
+print(f"\n-- AFTER SCALING -- y_test:\n{y_test[:5]}")
+
+# Linear Regression
+model = LinearRegression()
+# performing the training o the train data(i.e. X_train_scaled, y_train)
+model.fit(X_train_scaled, y_train)
+
+# Predicting new values
+y_pred = model.predict(X_test_scaled)
+
+# visualizing the parameters for the Regressor after the training
+print(f"\nAfter the training, the params fro the Regressor are: {model.coef_}") # the coefficient of the model
+
+# Visualizing the regression
+plt.title("Years of Experience vs Salary") # title of the plot
+plt.xlabel("Years of Experience") # title of x-axis
+plt.ylabel("Salary") # title of y-axis
+plt.scatter(X_test, y_test, color="red", label = 'Real Data') # actual plot
+plt.plot(X_test, y_pred, color = 'blue', label = 'Predicted Data') #regression line
+plt.legend() # show the legend
+plt.show()
+
+# Evaluating the model
+rmse = math.sqrt(mean_squared_error(y_test, y_pred)) # root mean squared error
+print(f"\nRMSE: {rmse:.2f}")
+
 # --- END OF MAIN CODE   ---
+
