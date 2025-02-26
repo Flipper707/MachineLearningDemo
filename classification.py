@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd # load the data into a DataFrame
 import matplotlib.pyplot as plt # to visualize the data
+from pandas.core.common import random_state
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split # to split the data into training and testing sets
 from sklearn.preprocessing import StandardScaler # to standardize(scale) the features (the X)
@@ -9,10 +10,11 @@ from sklearn.ensemble import RandomForestClassifier # to use the RandomForest mo
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix # to evaluate the model
 import seaborn as sns # to visualize the confusion
 from sklearn.datasets import load_iris # to load the Iris dataset
+
+from regression import X_train_scaled, X_test_scaled, y_pred
 # --- END OF IMPORT SECTION ---
 
 # --- MAIN CODE ---
-
 # Importing the dataset: the Iris dataset contains data of three species of flowers
 dataset = load_iris() #recupera il dataset direttamente da internet(if it's connected to the net)
 
@@ -32,8 +34,24 @@ y = data['target'].values # the last column
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 101, stratify = y)
 # stratify parameter ensures that the classes are well-balanced between train and test
 
+# Feature scaling
+scaler = StandardScaler()
+# we are going to scale ONLY the features(i.e. the X) and NOT the y
+X_train_scaled = scaler.fit_transform(X_train) # fitting to X_train and transforming them
+X_test_scaled = scaler.transform(X_test) # transforming X_test. DO NOT FIT THEM
 
+# Creating the model
+model = RandomForestClassifier(n_estimators = 100, random_state = 101) # differs from regression.py
 
+# Training model
+model.fit(X_train_scaled, y_train) # same as regression.py
+
+# Prediction over the test set
+y_pred = model.predict(X_test_scaled) # same as regression.py
+
+# Evaluating the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"\nThe accuracy of the model is: {accuracy:.2f}")
 
 
 
