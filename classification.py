@@ -10,8 +10,6 @@ from sklearn.ensemble import RandomForestClassifier # to use the RandomForest mo
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix # to evaluate the model
 import seaborn as sns # to visualize the confusion
 from sklearn.datasets import load_iris # to load the Iris dataset
-
-from regression import X_train_scaled, X_test_scaled, y_pred
 # --- END OF IMPORT SECTION ---
 
 # --- MAIN CODE ---
@@ -19,11 +17,11 @@ from regression import X_train_scaled, X_test_scaled, y_pred
 dataset = load_iris() #recupera il dataset direttamente da internet(if it's connected to the net)
 
 # Creating the DataFrame
-data = pd.DataFrame(data = dataset.data, columns = dataset.features_names) # the features and the target (a.k.a. the X and the y)
+data = pd.DataFrame(data = dataset.data, columns = dataset.feature_names) # the features and the target (a.k.a. the X and the y)
 data['target'] = dataset.target # the target (a.k.a. the y)
 
 # Visualizing the first rows of the dataset
-print(f"\nHere are the first rows of the dataset:\n{dataset.head()}")
+print(f"\nHere are the first rows of the dataset:\n{data.head()}")
 
 # Separate the data in the features and target
 X = data.iloc[:, :-1].values # all the columns except the last one
@@ -51,11 +49,19 @@ y_pred = model.predict(X_test_scaled) # same as regression.py
 
 # Evaluating the model
 accuracy = accuracy_score(y_test, y_pred)
-print(f"\nThe accuracy of the model is: {accuracy:.2f}")
+print(f"\nThe accuracy of the model is: {accuracy * 100:.2f} %")
 
+# Classification report
+print(f"\nClassification report:\n{classification_report(y_test, y_pred)}")
 
-
-
+# Confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred)
+sns.heatmap(conf_matrix, annot = True, fmt = 'd', cmap = 'Blues', xticklabels = dataset.target_names,
+            yticklabels = dataset.target_names)
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.show()
 
 
 
